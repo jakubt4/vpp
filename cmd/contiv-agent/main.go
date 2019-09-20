@@ -66,7 +66,8 @@ const (
 	defaultStartupTimeout = 45 * time.Second
 
 	grpcDBPath   = "/var/bolt/grpc.db"
-	grpcEndpoint = "localhost:9111"
+	grpcEndpointBase = "localhost:9111"
+	grpcEndpointEnvVar, existsGrpcEndpointEnvVar = os.LookupEnv("GRPC_ENDPOINT_VAR")
 )
 
 // ContivAgent manages vswitch in contiv/vpp solution
@@ -150,6 +151,10 @@ func main() {
 		deps.GoVPP = &govppmux.DefaultPlugin
 	}))
 
+	grpcEndpoint := grpcEndpointBase
+	if (existsGrpcEndpointEnvVar) {
+		grpcEndpoint := grpcEndpointEnvVar
+	}
 	contivGRPC := contivgrpc.NewPlugin(contivgrpc.UseDeps(func(deps *contivgrpc.Deps) {
 		deps.LocalDB = bolt.NewPlugin(func(plugin *bolt.Plugin) {
 			plugin.PluginName = "bolt2"
